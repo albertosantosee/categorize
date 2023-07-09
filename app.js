@@ -15,7 +15,10 @@ function readAndCategorize(filename) {
     lines.forEach((line, index) => {
         if(!line) return 
         // // const fiberCat = categorizeItemFib(line)
-        const naturalCat = categorizeItemNat(line) 
+        let naturalCat = 'error'
+        try{
+            naturalCat = categorizeItemNat(line) 
+        }catch(e){}
         console.log(`Line ${index + 1}: ${line}`);
         console.log(`\t\tcategory: `, naturalCat)
         // //   console.log(`\t\tfiber  : `, fiberCat)

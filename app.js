@@ -13,12 +13,13 @@ function readAndCategorize(filename) {
 
     const lines = data.split('\n');
     lines.forEach((line, index) => {
+        if(!line) return 
         // // const fiberCat = categorizeItemFib(line)
         const naturalCat = categorizeItemNat(line) 
-      console.log(`Line ${index + 1}: ${line}`);
-      console.log(`\t\tnatural: `, naturalCat)
-    // //   console.log(`\t\tfiber  : `, fiberCat)
-      console.log()
+        console.log(`Line ${index + 1}: ${line}`);
+        console.log(`\t\tcategory: `, naturalCat)
+        // //   console.log(`\t\tfiber  : `, fiberCat)
+        console.log()
     });
   });
 }

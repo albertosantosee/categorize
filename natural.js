@@ -1,49 +1,22 @@
 const natural = require('natural');
-
+const categories = require('./categories')
 function categorizeItem(description) {
-  const categories = {
-    electronics: ['electronics', 'tv', 'computer', 'camera', 'phone', 'tablet'],
-    home: ['home', 'furniture', 'kitchen', 'bedroom', 'bathroom', 'decor'],
-    clothing: ['clothing', 'apparel', 'shoes', 'accessories', 'fashion'],
-    beauty: ['beauty', 'skincare', 'makeup', 'hair', 'fragrance'],
-    sports: ['sports', 'outdoors', 'fitness', 'exercise', 'equipment'],
-    books: ['books', 'literature', 'novel', 'magazine', 'educational'],
-    toys: ['toys', 'games', 'play', 'kids', 'children'],
-    automotive: ['automotive', 'car', 'vehicle', 'parts', 'accessories'],
-    groceries: ['groceries', 'food', 'beverages', 'snacks', 'pantry'],
-    // Add more categories as needed
-  };
-
-  const tfidf = new natural.TfIdf();
-
-  // Calculate the TF-IDF scores for the pre-defined categories
+    
+  const classifier = new natural.BayesClassifier();
   for (const [category, keywords] of Object.entries(categories)) {
-    tfidf.addDocument(keywords.join(' '));
+    classifier.addDocument(keywords.join(' '), category);
   }
+  classifier.train();
 
-  // Calculate the TF-IDF scores for the input description
-  tfidf.addDocument(description);
+  const category = classifier.classify(description);
 
-  const itemCategory = tfidf.listTerms(1).reduce((maxCategory, term) => {
-    const termTFIDF = tfidf.tfidf(term.term, 1);
-    for (const [category, keywords] of Object.entries(categories)) {
-      if (keywords.includes(term.term) && termTFIDF > tfidf.tfidf(maxCategory.term, maxCategory.document)) {
-        maxCategory.term = term.term;
-        maxCategory.document = 1;
-        maxCategory.category = category;
-      }
-    }
-    return maxCategory;
-  }, { term: '', document: 0, category: null }).category;
-
-  return itemCategory;
+  return category;
 }
 
 // Example usage
 const description = "12V 5A Power Supply Led Strip Light 120V to 12V Transformer Input with 5.5x2.1mm 60W 12V AC DC";
 const itemCategory = categorizeItem(description);
 console.log(itemCategory);
-
 
 
 module.exports = categorizeItem

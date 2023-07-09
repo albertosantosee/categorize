@@ -1,22 +1,37 @@
 const natural = require('natural');
-const categories = require('./categories')
+const categories = require('./categories');
+
 function categorizeItem(description) {
-    
   const classifier = new natural.BayesClassifier();
   for (const [category, keywords] of Object.entries(categories)) {
-    classifier.addDocument(keywords.join(' '), category);
+    for (const keyword of keywords) {
+      classifier.addDocument(keyword, category);
+    }
   }
   classifier.train();
 
-  const category = classifier.classify(description);
+  const itemProbabilities = classifier.getClassifications(description);
+  itemProbabilities.sort((a, b) => b.value - a.value); // Sort by probability in descending order
 
-  return category;
+  const topCategory = itemProbabilities[0].label; // Get the top category
+  const threshold = 0.1; // Adjust the threshold as needed
+
+  if (topCategory === 'none' || itemProbabilities[0].value < threshold) {
+    // Check if the description contains any toy-related keywords
+    const toyKeywords = categories.toys;
+    const hasToyKeyword = toyKeywords.some((keyword) => description.toLowerCase().includes(keyword));
+    if (hasToyKeyword) {
+      return 'toys'; // Return "toys" category if the description contains toy-related keywords
+    }
+    return 'miscellaneous'; // Return "miscellaneous" category for unrecognized or low probability inputs
+  }
+
+  return topCategory;
 }
 
 // Example usage
-const description = "12V 5A Power Supply Led Strip Light 120V to 12V Transformer Input with 5.5x2.1mm 60W 12V AC DC";
+const description = "Wooden Montessori Toys for Toddlers, Carrot Harvest, Shapes Sorting &Matching, Stacking...";
 const itemCategory = categorizeItem(description);
 console.log(itemCategory);
 
-
-module.exports = categorizeItem
+module.exports = categorizeItem;
